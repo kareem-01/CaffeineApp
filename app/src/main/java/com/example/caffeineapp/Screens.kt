@@ -2,7 +2,11 @@ package com.example.caffeineapp
 
 import kotlinx.serialization.Serializable
 
-object Routes {
+object Screens {
+
+    @Serializable
+    data object Splash
+
     @Serializable
     data object Home
 }
