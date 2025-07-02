@@ -19,9 +19,9 @@ import com.example.caffeineapp.theme.pureBlack
 
 @Composable
 fun MainButton(
-    text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    text: String = "Continue",
     iconPainter: Painter = painterResource(R.drawable.arrow_right_icon),
 ) {
     Button(

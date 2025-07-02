@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .background(color = Color.White)
                         .systemBarsPadding()
+                        .fillMaxSize()
                 )
             }
         }
