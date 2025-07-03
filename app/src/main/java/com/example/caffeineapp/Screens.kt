@@ -9,4 +9,9 @@ object Screens {
 
     @Serializable
     data object Home
+
+
+    @Serializable
+    data class OrderCoffee(val coffeeCup: String)
+
 }

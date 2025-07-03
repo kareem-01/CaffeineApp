@@ -24,15 +24,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
 import com.example.caffeineapp.CoffeeCub
+import com.example.caffeineapp.LocalNavController
 import com.example.caffeineapp.R
+import com.example.caffeineapp.Screens
 import com.example.caffeineapp.components.AppHeader
 import com.example.caffeineapp.components.MainButton
 import com.example.caffeineapp.theme.MainTextStyle
 import com.example.caffeineapp.theme.textColor87
+import com.example.caffeineapp.utils.toJson
 import kotlin.math.absoluteValue
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
+    val navController = LocalNavController.current
     val coffeeCubsList = listOf(
         CoffeeCub(
             image = R.drawable.black_coffee,
@@ -52,7 +56,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         )
     )
     val pagerState = rememberPagerState(pageCount = { 4 })
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         AppHeader()
         Text(
             text = "Good Morning",
@@ -115,8 +119,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                         contentDescription = null,
                         modifier = Modifier
                             .size(width = animatedWidth, height = animatedHeight)
-                            .align (Alignment.BottomCenter)
-                        ,
+                            .align(Alignment.BottomCenter),
                         contentScale = ContentScale.Fit,
 
                         )
@@ -134,7 +137,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         Spacer(Modifier.weight(1f))
         MainButton(
             onClick = {
-                //TODO
+                navController.navigate(Screens.OrderCoffee(coffeeCup = coffeeCubsList[pagerState.currentPage].toJson()))
             },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)

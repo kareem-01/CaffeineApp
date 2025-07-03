@@ -1,10 +1,9 @@
 package com.example.caffeineapp
 
-import androidx.annotation.DrawableRes
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CoffeeCub(
-    @param:DrawableRes
     val image: Int,
     val name: String,
-
 )
