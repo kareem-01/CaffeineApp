@@ -6,9 +6,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -24,8 +27,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.caffeineapp.features.order.HeaderedIcon
 import com.example.caffeineapp.theme.MainTextStyle
+import com.example.caffeineapp.theme.pureBlack
 import com.example.caffeineapp.theme.textColor87
 import com.example.caffeineapp.theme.white87
 import com.example.caffeineapp.utils.noRippleClick
@@ -39,93 +44,114 @@ fun ChoicesRow(
     headeredIcons: List<HeaderedIcon>? = null,
 ) {
     val itemSize = 24.dp
-
-
-    Row(
-        modifier = modifier
-            .background(color = Color(0xFFF5F5F5), shape = RoundedCornerShape(100))
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    val width = 153.dp
+    Column(
+        modifier = Modifier.width(width)
     ) {
-        sizes?.let { sizesList ->
-            sizesList.forEachIndexed { index, item ->
-                val isSelected = index == selectedIndex
+        Row(
+            modifier = modifier
+                .background(color = Color(0xFFF5F5F5), shape = RoundedCornerShape(100))
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            sizes?.let { sizesList ->
+                sizesList.forEachIndexed { index, item ->
+                    val isSelected = index == selectedIndex
 
-                val textColor by calculateItemColor(
-                    isSelected = isSelected,
-                    selectedColor = white87,
-                    unselectedColor = textColor87.copy(.6f)
-                )
-                val backgroundColor by calculateItemColor(
-                    isSelected = isSelected,
-                    selectedColor = Color(0xFF7C351B),
-                    unselectedColor = Color.Transparent
-                )
-
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .shadow(
-                            elevation = if (isSelected) 8.dp else 0.dp,
-                            shape = CircleShape,
-                            clip = false,
-
-                            spotColor = backgroundColor
-                        )
-                        .background(color = backgroundColor, shape = CircleShape)
-                        .padding(8.dp)
-                        .size(itemSize)
-                        .noRippleClick { onChoiceSelected(index) }
-                ) {
-                    Text(
-                        text = item,
-                        style = MainTextStyle,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor,
-                        textAlign = TextAlign.Center,
+                    val textColor by calculateItemColor(
+                        isSelected = isSelected,
+                        selectedColor = white87,
+                        unselectedColor = textColor87.copy(.6f)
                     )
+                    val backgroundColor by calculateItemColor(
+                        isSelected = isSelected,
+                        selectedColor = Color(0xFF7C351B),
+                        unselectedColor = Color.Transparent
+                    )
+
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .shadow(
+                                elevation = if (isSelected) 8.dp else 0.dp,
+                                shape = CircleShape,
+                                clip = false,
+
+                                spotColor = backgroundColor
+                            )
+                            .background(color = backgroundColor, shape = CircleShape)
+                            .padding(8.dp)
+                            .size(itemSize)
+                            .noRippleClick { onChoiceSelected(index) }
+                    ) {
+                        Text(
+                            text = item,
+                            style = MainTextStyle,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+
                 }
-
             }
-        }
 
-        headeredIcons?.let { iconsList ->
-            iconsList.forEachIndexed { index, icon ->
-                val isSelected = index == selectedIndex
-                val iconColor by calculateItemColor(
-                    isSelected = isSelected,
-                    selectedColor = white87,
-                    unselectedColor = Color.Transparent
-                )
-                val backgroundColor by calculateItemColor(
-                    isSelected = isSelected,
-                    selectedColor = Color(0xFF7C351B),
-                    unselectedColor = Color.Transparent
-                )
-                Icon(
-                    painter = painterResource(icon.iconResource),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .shadow(
-                            elevation = if (isSelected) 8.dp else 0.dp,
-                            shape = CircleShape,
-                            clip = false,
-                            spotColor = backgroundColor
-                        )
-                        .background(
-                            color = backgroundColor,
-                            shape = CircleShape
-                        )
-                        .padding(8.dp)
-                        .size(itemSize)
-                        .noRippleClick {
-                            onChoiceSelected(index)
-                        },
-                    tint = iconColor
-                )
+            headeredIcons?.let { iconsList ->
+                iconsList.forEachIndexed { index, icon ->
+                    val isSelected = index == selectedIndex
+                    val iconColor by calculateItemColor(
+                        isSelected = isSelected,
+                        selectedColor = white87,
+                        unselectedColor = Color.Transparent
+                    )
+                    val backgroundColor by calculateItemColor(
+                        isSelected = isSelected,
+                        selectedColor = Color(0xFF7C351B),
+                        unselectedColor = Color.Transparent
+                    )
+                    Icon(
+                        painter = painterResource(icon.iconResource),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .shadow(
+                                elevation = if (isSelected) 8.dp else 0.dp,
+                                shape = CircleShape,
+                                clip = false,
+                                spotColor = backgroundColor
+                            )
+                            .background(
+                                color = backgroundColor,
+                                shape = CircleShape
+                            )
+                            .padding(8.dp)
+                            .size(itemSize)
+                            .noRippleClick {
+                                onChoiceSelected(index)
+                            },
+                        tint = iconColor
+                    )
 
+                }
             }
+
         }
+        if (headeredIcons != null)
+            Row(
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                headeredIcons.forEachIndexed { index, icon ->
+                    Text(
+                        text = icon.header,
+                        style = MainTextStyle,
+                        fontSize = 10.sp,
+                        color = pureBlack.copy(.6f)
+                    )
+
+                }
+            }
     }
 
 }

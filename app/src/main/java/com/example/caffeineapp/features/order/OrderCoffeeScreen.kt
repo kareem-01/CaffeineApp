@@ -1,6 +1,8 @@
 package com.example.caffeineapp.features.order
 
+import ProgressiveWaveIndicator
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseIn
@@ -18,7 +20,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,7 +39,10 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.caffeineapp.CoffeeCub
@@ -49,12 +53,17 @@ import com.example.caffeineapp.components.MainButton
 import com.example.caffeineapp.features.order.components.ChoicesRow
 import com.example.caffeineapp.theme.MainTextStyle
 import com.example.caffeineapp.theme.dark
+import com.example.caffeineapp.theme.darkRed
+import com.example.caffeineapp.theme.pureBlack
+import com.example.caffeineapp.theme.singletFontFamily
 import com.example.caffeineapp.theme.textColor87
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
+    val isPhaseOne = remember { mutableStateOf(true) }
+
     val previousCoffeeConcentration = remember { mutableStateOf(CoffeeConcentration.LOW) }
 
     val navController = LocalNavController.current
@@ -68,6 +77,13 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
             )
         )
     }
+    val secondPhaseSlide by animateFloatAsState(
+        targetValue = if (isPhaseOne.value) 0f else 1f,
+        animationSpec = tween(
+            durationMillis = 500,
+            easing = if (isPhaseOne.value) EaseIn else EaseOut
+        ),
+    )
 
     val slideInOffset by animateFloatAsState(
         targetValue = when {
@@ -84,7 +100,7 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
     val beansTranslationY = remember { Animatable(0f) }
     val beansScale = remember { Animatable(1f) }
     val beansAlpha = remember { Animatable(0f) }
-    val beansAnimationSpec = tween<Float>(800, easing = LinearEasing)
+    val beansAnimationSpec = tween<Float>(500, easing = LinearEasing)
     val beansTargetOffset = 800f
     val beansTargetScale = 0.5f
     val beansTargetAlpha = 0f
@@ -158,6 +174,8 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .graphicsLayer {
                         translationY = deviceHeight * slideInOffset
+                        if (!isPhaseOne.value)
+                            translationY = -300f * secondPhaseSlide
                     }
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -227,52 +245,128 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
                     }
 
 
-                    ChoicesRow(
-                        modifier = Modifier.padding(top = 16.dp),
-                        selectedIndex = selectedCoffeeSpecs.value.coffeeCupSize.ordinal,
-                        onChoiceSelected = {
-                            selectedCoffeeSpecs.value = selectedCoffeeSpecs.value.copy(
-                                coffeeCupSize = CoffeeCupSize.entries[it]
+                    AnimatedVisibility(
+                        isPhaseOne.value,
+                        enter = fadeIn(animationSpec = tween(durationMillis = 500)),
+                        exit = fadeOut(animationSpec = tween(durationMillis = 500)),
+                    ) {
+                        Column {
+                            ChoicesRow(
+                                modifier = Modifier.padding(top = 16.dp),
+                                selectedIndex = selectedCoffeeSpecs.value.coffeeCupSize.ordinal,
+                                onChoiceSelected = {
+                                    selectedCoffeeSpecs.value = selectedCoffeeSpecs.value.copy(
+                                        coffeeCupSize = CoffeeCupSize.entries[it]
+                                    )
+                                },
+                                sizes = listOf("S", "M", "L")
                             )
-                        },
-                        sizes = listOf("S", "M", "L")
-                    )
 
-                    ChoicesRow(
-                        modifier = Modifier.padding(top = 16.dp),
-                        selectedIndex = selectedCoffeeSpecs.value.coffeeConcentration.ordinal,
-                        onChoiceSelected = {
-                            selectedCoffeeSpecs.value = selectedCoffeeSpecs.value.copy(
-                                coffeeConcentration = CoffeeConcentration.entries[it]
+                            ChoicesRow(
+                                modifier = Modifier.padding(top = 16.dp),
+                                selectedIndex = selectedCoffeeSpecs.value.coffeeConcentration.ordinal,
+                                onChoiceSelected = {
+                                    selectedCoffeeSpecs.value = selectedCoffeeSpecs.value.copy(
+                                        coffeeConcentration = CoffeeConcentration.entries[it]
+                                    )
+                                },
+                                headeredIcons = listOf(
+                                    HeaderedIcon(
+                                        iconResource = R.drawable.coffee_beans,
+                                        header = CoffeeConcentration.LOW.title
+                                    ),
+                                    HeaderedIcon(
+                                        iconResource = R.drawable.coffee_beans,
+                                        header = CoffeeConcentration.MEDIUM.title
+                                    ),
+                                    HeaderedIcon(
+                                        iconResource = R.drawable.coffee_beans,
+                                        header = CoffeeConcentration.HIGH.title
+                                    )
+                                )
                             )
-                        },
-                        headeredIcons = listOf(
-                            HeaderedIcon(
-                                iconResource = R.drawable.coffee_beans,
-                                header = CoffeeConcentration.LOW.title
-                            ),
-                            HeaderedIcon(
-                                iconResource = R.drawable.coffee_beans,
-                                header = CoffeeConcentration.MEDIUM.title
-                            ),
-                            HeaderedIcon(
-                                iconResource = R.drawable.coffee_beans,
-                                header = CoffeeConcentration.HIGH.title
-                            )
-                        )
-                    )
-
+                        }
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+        }
+        AnimatedVisibility(
+            isPhaseOne.value.not(), enter = fadeIn(animationSpec = tween(durationMillis = 500)),
+            exit = fadeOut(animationSpec = tween(durationMillis = 500)),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp)
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                ProgressiveWaveIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .padding(bottom = 24.dp),
 
+                    )
+                Text(
+                    text = "Almost Done",
+                    style = MainTextStyle,
+                    color = textColor87,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp
+                )
+                Text(
+                    text = "Your coffee will be finish in",
+                    style = MainTextStyle,
+                    color = pureBlack.copy(alpha = 0.6f),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+                val spannedString = buildAnnotatedString {
+                    val style = SpanStyle(
+                        fontFamily = singletFontFamily,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 32.sp,
+                        color = darkRed,
+                    )
+                    val separatorColor = pureBlack.copy(0.12f)
+                    append("CO")
+                    withStyle(style.copy(color = separatorColor)) {
+                        append("  :  ")
+                    }
+                    append("FF")
+                    withStyle(style.copy(color = separatorColor)) {
+                        append(" :  ")
+                    }
+                    append("EE")
+
+                }
+                Text(
+                    text = spannedString,
+                    fontFamily = singletFontFamily,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 32.sp,
+                    color = darkRed,
+                )
+            }
+
+
+        }
+
+        AnimatedVisibility(
+            isPhaseOne.value,
+            enter = fadeIn(animationSpec = tween(durationMillis = 500)),
+            exit = fadeOut(animationSpec = tween(durationMillis = 500)),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
             MainButton(
-                text = "continue", onClick = {}, modifier = Modifier
+                text = "continue",
+                onClick = {
+                    isPhaseOne.value = !isPhaseOne.value
+                },
+                modifier = Modifier
                     .padding(16.dp)
                     .graphicsLayer {
                         translationY = 3000 * slideInOffset
-                    }
+                    },
             )
         }
         Image(
