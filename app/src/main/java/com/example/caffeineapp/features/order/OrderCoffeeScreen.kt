@@ -2,6 +2,7 @@ package com.example.caffeineapp.features.order
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.LinearEasing
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -48,13 +50,12 @@ import com.example.caffeineapp.features.order.components.ChoicesRow
 import com.example.caffeineapp.theme.MainTextStyle
 import com.example.caffeineapp.theme.dark
 import com.example.caffeineapp.theme.textColor87
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
     val previousCoffeeConcentration = remember { mutableStateOf(CoffeeConcentration.LOW) }
-    val isIncreasingConcentration = remember { mutableStateOf(false) }
-    val isDecreasingConcentration = remember { mutableStateOf(false) }
 
     val navController = LocalNavController.current
     val isEntering = remember { mutableStateOf(false) }
@@ -80,22 +81,15 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
         ),
         label = "slideAnimation",
     )
-    val coffeeAlpha by animateFloatAsState(
-        targetValue = when {
-            isDecreasingConcentration.value -> 1f
-            isIncreasingConcentration.value -> 1f
-            else -> 0f
-        },
-        animationSpec = tween(
-            durationMillis = 400,
-            easing = if (isDecreasingConcentration.value) EaseOut else EaseIn
-        ),
-        label = "coffeeAlphaAnimation",
-        finishedListener = {
-            isIncreasingConcentration.value = false
-            isDecreasingConcentration.value = false
-        }
-    )
+    val beansTranslationY = remember { Animatable(0f) }
+    val beansScale = remember { Animatable(1f) }
+    val beansAlpha = remember { Animatable(0f) }
+    val beansAnimationSpec = tween<Float>(800, easing = LinearEasing)
+    val beansTargetOffset = 800f
+    val beansTargetScale = 0.5f
+    val beansTargetAlpha = 0f
+
+    val isFirstComposition = remember { mutableStateOf(true) }
 
     val deviceHeight = LocalWindowInfo.current.containerSize.height.toFloat()
     val currentSizeScale = when (selectedCoffeeSpecs.value.coffeeCupSize) {
@@ -104,19 +98,6 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
         CoffeeCupSize.LARGE -> 1f
     }
 
-    val beansTranslationProgress by animateFloatAsState(
-        targetValue = when {
-            isIncreasingConcentration.value -> -1f
-            isDecreasingConcentration.value -> 1f
-            else -> 0f
-        },
-        animationSpec = tween(800, easing = LinearEasing),
-        finishedListener = {
-            isIncreasingConcentration.value = false
-            isDecreasingConcentration.value = false
-        },
-        label = "beansAnimation"
-    )
 
     val coffeeCupScaleFactor by animateFloatAsState(
         targetValue = currentSizeScale,
@@ -128,16 +109,43 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
     }
 
     LaunchedEffect(selectedCoffeeSpecs.value.coffeeConcentration) {
-        if (selectedCoffeeSpecs.value.coffeeConcentration.ordinal > previousCoffeeConcentration.value.ordinal) {
-            isIncreasingConcentration.value = true
-            isDecreasingConcentration.value = false
+        if (isFirstComposition.value) {
+            isFirstComposition.value = false
+            return@LaunchedEffect
+        }
+        val isAddingCoffee =
+            selectedCoffeeSpecs.value.coffeeConcentration.ordinal > previousCoffeeConcentration.value.ordinal
+
+        if (isAddingCoffee) {
+            beansTranslationY.snapTo(0f)
+            beansScale.snapTo(1f)
+            beansAlpha.snapTo(1f)
+
+            launch { beansTranslationY.animateTo(beansTargetOffset, beansAnimationSpec) }
+            launch {
+                beansScale.animateTo(
+                    targetValue = beansTargetScale,
+                    animationSpec = beansAnimationSpec
+                )
+            }
+            launch { beansAlpha.animateTo(beansTargetAlpha, beansAnimationSpec) }
+
         } else {
-            isIncreasingConcentration.value = false
-            isDecreasingConcentration.value = true
+            beansTranslationY.snapTo(beansTargetOffset)
+            beansScale.snapTo(beansTargetScale)
+            beansAlpha.snapTo(beansTargetAlpha)
+
+            launch { beansTranslationY.animateTo(0f, beansAnimationSpec) }
+            launch {
+                beansScale.animateTo(
+                    targetValue = 1f,
+                    animationSpec = beansAnimationSpec
+                )
+            }
+            launch { beansAlpha.animateTo(1f, beansAnimationSpec) }
         }
         previousCoffeeConcentration.value = selectedCoffeeSpecs.value.coffeeConcentration
     }
-
     Box(modifier = Modifier.fillMaxSize()) {
 
         Column(
@@ -184,16 +192,24 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
                     .padding(top = 32.dp, start = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    selectedCoffeeSpecs.value.coffeeCupSize.size.toString() + " ML",
-                    style = MainTextStyle,
-                    color = dark.copy(alpha = 0.6f),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier
-                        .padding(top = 40.dp)
-                        .widthIn(min = 47.dp)
-                )
+                AnimatedContent(
+                    targetState = selectedCoffeeSpecs.value.coffeeCupSize.size,
+                    transitionSpec = {
+                        fadeIn(tween(300)) togetherWith fadeOut(tween(300))
+                    },
+                    label = "CupSizeAnimation"
+                ) { cupSize ->
+                    Text(
+                        text = "$cupSize ML",
+                        style = MainTextStyle,
+                        color = dark.copy(alpha = 0.6f),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                            .padding(top = 40.dp)
+                            .widthIn(min = 47.dp)
+                    )
+                }
                 Column(modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(modifier = Modifier.height(300.dp)) {
                         Image(
@@ -263,14 +279,14 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
             painter = painterResource(id = R.drawable.coffee_beans_image),
             contentDescription = null,
             modifier = Modifier
-                .align(Alignment.Center)
-                .padding(bottom = 550.dp)
-                .size(120.dp)
+                .align(Alignment.TopCenter)
+                .offset(y = (-240).dp)
                 .graphicsLayer {
-                    translationY = -3000 * beansTranslationProgress
-                 
-                    alpha = coffeeAlpha
+                    translationY = beansTranslationY.value
+                    alpha = beansAlpha.value
                 }
+                .scale(beansScale.value)
+                .size(220.dp)
         )
     }
 
