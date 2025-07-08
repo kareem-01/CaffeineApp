@@ -6,18 +6,20 @@ import androidx.navigation.compose.NavHost
 import com.example.caffeineapp.features.coffeReadyScreen.coffeeReadyScreen
 import com.example.caffeineapp.features.home.homeGraph
 import com.example.caffeineapp.features.order.orderGraph
+import com.example.caffeineapp.features.snacksScreen.snacksScreen
 import com.example.caffeineapp.features.splash.splashGraph
 
 @Composable
 fun AppNavGraph(modifier: Modifier = Modifier) {
     NavHost(
         navController = LocalNavController.current,
-        startDestination = Screens.Splash,
+        startDestination = Screens.CoffeeReadyScreen,
         modifier = modifier
     ) {
         splashGraph()
         homeGraph()
         orderGraph()
         coffeeReadyScreen()
+        snacksScreen()
     }
 }

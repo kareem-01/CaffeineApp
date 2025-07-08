@@ -15,10 +15,7 @@ import kotlinx.coroutines.isActive
 import kotlin.math.PI
 import kotlin.math.sin
 
-/**
- * A loading indicator that draws and erases a wave. Both the drawing
- * and erasing animations accelerate (start slow and get faster).
- */
+
 @Composable
 fun ProgressiveWaveIndicator(
     modifier: Modifier = Modifier,

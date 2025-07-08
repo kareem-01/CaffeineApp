@@ -58,6 +58,7 @@ import com.example.caffeineapp.theme.darkRed
 import com.example.caffeineapp.theme.pureBlack
 import com.example.caffeineapp.theme.singletFontFamily
 import com.example.caffeineapp.theme.textColor87
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -117,7 +118,7 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
         CoffeeCupSize.MEDIUM -> 0.8f
         CoffeeCupSize.LARGE -> 1f
     }
-
+    val previousCupSize = remember { mutableStateOf(CoffeeCupSize.MEDIUM) }
 
     val coffeeCupScaleFactor by animateFloatAsState(
         targetValue = currentSizeScale,
@@ -131,13 +132,56 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
     LaunchedEffect(isPhaseOne.value) {
         if (isPhaseOne.value.not()) {
             delay((loadingAnimationDuration * 1.5).toLong())
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 navController.navigate(Screens.CoffeeReadyScreen)
             }
         }
     }
 
-    LaunchedEffect(selectedCoffeeSpecs.value.coffeeConcentration) {
+    suspend fun CoroutineScope.addCoffeeToCub() {
+        beansTranslationY.snapTo(0f)
+        beansScale.snapTo(1f)
+        beansAlpha.snapTo(1f)
+
+        launch { beansTranslationY.animateTo(beansTargetOffset, beansAnimationSpec) }
+        launch {
+            beansScale.animateTo(
+                targetValue = beansTargetScale,
+                animationSpec = beansAnimationSpec
+            )
+        }
+        launch { beansAlpha.animateTo(beansTargetAlpha, beansAnimationSpec) }
+    }
+
+    suspend fun CoroutineScope.removeCoffeeBeansFromCub() {
+        beansTranslationY.snapTo(beansTargetOffset)
+        beansScale.snapTo(beansTargetScale)
+        beansAlpha.snapTo(beansTargetAlpha)
+
+        launch { beansTranslationY.animateTo(0f, beansAnimationSpec) }
+        launch {
+            beansScale.animateTo(
+                targetValue = 1f,
+                animationSpec = beansAnimationSpec
+            )
+        }
+        launch { beansAlpha.animateTo(1f, beansAnimationSpec) }
+
+    }
+    LaunchedEffect(
+        selectedCoffeeSpecs.value.coffeeCupSize,
+    ) {
+        if (previousCupSize.value.ordinal > selectedCoffeeSpecs.value.coffeeCupSize.ordinal) {
+            removeCoffeeBeansFromCub()
+        }else{
+            beansAlpha.snapTo(0f)
+        }
+        previousCupSize.value = selectedCoffeeSpecs.value.coffeeCupSize
+
+    }
+    LaunchedEffect(
+        selectedCoffeeSpecs.value.coffeeConcentration,
+    ) {
         if (isFirstComposition.value) {
             isFirstComposition.value = false
             return@LaunchedEffect
@@ -146,32 +190,9 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
             selectedCoffeeSpecs.value.coffeeConcentration.ordinal > previousCoffeeConcentration.value.ordinal
 
         if (isAddingCoffee) {
-            beansTranslationY.snapTo(0f)
-            beansScale.snapTo(1f)
-            beansAlpha.snapTo(1f)
-
-            launch { beansTranslationY.animateTo(beansTargetOffset, beansAnimationSpec) }
-            launch {
-                beansScale.animateTo(
-                    targetValue = beansTargetScale,
-                    animationSpec = beansAnimationSpec
-                )
-            }
-            launch { beansAlpha.animateTo(beansTargetAlpha, beansAnimationSpec) }
-
+            addCoffeeToCub()
         } else {
-            beansTranslationY.snapTo(beansTargetOffset)
-            beansScale.snapTo(beansTargetScale)
-            beansAlpha.snapTo(beansTargetAlpha)
-
-            launch { beansTranslationY.animateTo(0f, beansAnimationSpec) }
-            launch {
-                beansScale.animateTo(
-                    targetValue = 1f,
-                    animationSpec = beansAnimationSpec
-                )
-            }
-            launch { beansAlpha.animateTo(1f, beansAnimationSpec) }
+            removeCoffeeBeansFromCub()
         }
         previousCoffeeConcentration.value = selectedCoffeeSpecs.value.coffeeConcentration
     }
@@ -267,9 +288,10 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
                             ChoicesRow(
                                 modifier = Modifier.padding(top = 16.dp),
                                 selectedIndex = selectedCoffeeSpecs.value.coffeeCupSize.ordinal,
-                                onChoiceSelected = {
+                                onChoiceSelected = { index ->
+
                                     selectedCoffeeSpecs.value = selectedCoffeeSpecs.value.copy(
-                                        coffeeCupSize = CoffeeCupSize.entries[it]
+                                        coffeeCupSize = CoffeeCupSize.entries[index]
                                     )
                                 },
                                 sizes = listOf("S", "M", "L")

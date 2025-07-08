@@ -21,7 +21,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +32,7 @@ import com.example.caffeineapp.theme.MainTextStyle
 import com.example.caffeineapp.theme.pureBlack
 import com.example.caffeineapp.theme.textColor87
 import com.example.caffeineapp.theme.white87
+import com.example.caffeineapp.utils.dropShadow
 import com.example.caffeineapp.utils.noRippleClick
 
 @Composable
@@ -68,16 +68,18 @@ fun ChoicesRow(
                         selectedColor = Color(0xFF7C351B),
                         unselectedColor = Color.Transparent
                     )
-
+                    val dropShadowColor by calculateItemColor(
+                        isSelected = isSelected,
+                        selectedColor = Color(0x80B94B23),
+                        unselectedColor = Color.Transparent
+                    )
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .shadow(
-                                elevation = if (isSelected) 8.dp else 0.dp,
+                            .dropShadow(
                                 shape = CircleShape,
-                                clip = false,
-
-                                spotColor = backgroundColor
+                                color = dropShadowColor,
+                                blur = 16.dp
                             )
                             .background(color = backgroundColor, shape = CircleShape)
                             .padding(8.dp)
@@ -109,15 +111,20 @@ fun ChoicesRow(
                         selectedColor = Color(0xFF7C351B),
                         unselectedColor = Color.Transparent
                     )
+                    val dropShadowColor by calculateItemColor(
+                        isSelected = isSelected,
+                        selectedColor = Color(0x80B94B23),
+                        unselectedColor = Color.Transparent
+                    )
+
                     Icon(
                         painter = painterResource(icon.iconResource),
                         contentDescription = null,
                         modifier = Modifier
-                            .shadow(
-                                elevation = if (isSelected) 8.dp else 0.dp,
+                            .dropShadow(
                                 shape = CircleShape,
-                                clip = false,
-                                spotColor = backgroundColor
+                                color = dropShadowColor,
+                                blur = 16.dp
                             )
                             .background(
                                 color = backgroundColor,

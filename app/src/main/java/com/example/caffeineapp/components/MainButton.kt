@@ -33,7 +33,7 @@ fun MainButton(
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 4.dp,
         ),
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+        contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
     ) {
         Text(
             text,

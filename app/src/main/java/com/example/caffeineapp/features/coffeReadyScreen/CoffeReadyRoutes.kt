@@ -6,6 +6,6 @@ import com.example.caffeineapp.Screens
 
 fun NavGraphBuilder.coffeeReadyScreen() {
     composable<Screens.CoffeeReadyScreen>() {
-
+        CoffeeReadyScreen()
     }
 }
