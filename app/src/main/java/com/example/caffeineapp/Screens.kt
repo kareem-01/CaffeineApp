@@ -17,4 +17,10 @@ object Screens {
     @Serializable
     data object CoffeeReadyScreen
 
+    @Serializable
+    data object SnacksScreen
+
+    @Serializable
+    data class SnackDetailsScreen(val snackImageResource: Int)
+
 }

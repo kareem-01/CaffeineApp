@@ -155,7 +155,7 @@ fun CoffeeReadyScreen(modifier: Modifier = Modifier) {
 
         MainButton(
             onClick = {
-                navController.navigate("")
+                navController.navigate(Screens.SnacksScreen)
             },
             text = "Take snack",
             modifier = Modifier.graphicsLayer {

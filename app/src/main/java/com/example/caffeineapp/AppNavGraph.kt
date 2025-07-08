@@ -8,12 +8,13 @@ import com.example.caffeineapp.features.home.homeGraph
 import com.example.caffeineapp.features.order.orderGraph
 import com.example.caffeineapp.features.snacksScreen.snacksScreen
 import com.example.caffeineapp.features.splash.splashGraph
+import com.example.caffeineapp.features.sweetDetailsScreen.snackDetailsScreen
 
 @Composable
 fun AppNavGraph(modifier: Modifier = Modifier) {
     NavHost(
         navController = LocalNavController.current,
-        startDestination = Screens.CoffeeReadyScreen,
+        startDestination = Screens.SnacksScreen,
         modifier = modifier
     ) {
         splashGraph()
@@ -21,5 +22,6 @@ fun AppNavGraph(modifier: Modifier = Modifier) {
         orderGraph()
         coffeeReadyScreen()
         snacksScreen()
+        snackDetailsScreen()
     }
 }
