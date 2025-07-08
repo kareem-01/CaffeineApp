@@ -22,10 +22,10 @@ import kotlin.math.sin
 @Composable
 fun ProgressiveWaveIndicator(
     modifier: Modifier = Modifier,
-    wavelength: Float = 200f,
+    wavelength: Float = 300f,
     strokeWidth: Float = 8f,
     waveColor: Color = Color.Black,
-    durationMillis: Int = 3000
+    durationMillis: Int = 4000
 ) {
     val progress = remember { Animatable(0f) }
 

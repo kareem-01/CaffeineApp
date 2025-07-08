@@ -14,4 +14,7 @@ object Screens {
     @Serializable
     data class OrderCoffee(val coffeeCup: String)
 
+    @Serializable
+    data object CoffeeReadyScreen
+
 }

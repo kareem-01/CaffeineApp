@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import com.example.caffeineapp.CoffeeCub
 import com.example.caffeineapp.LocalNavController
 import com.example.caffeineapp.R
+import com.example.caffeineapp.Screens
 import com.example.caffeineapp.components.AppActionIcon
 import com.example.caffeineapp.components.MainButton
 import com.example.caffeineapp.features.order.components.ChoicesRow
@@ -57,13 +58,16 @@ import com.example.caffeineapp.theme.darkRed
 import com.example.caffeineapp.theme.pureBlack
 import com.example.caffeineapp.theme.singletFontFamily
 import com.example.caffeineapp.theme.textColor87
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @Composable
 fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
     val isPhaseOne = remember { mutableStateOf(true) }
-
+    val loadingAnimationDuration = 4000
     val previousCoffeeConcentration = remember { mutableStateOf(CoffeeConcentration.LOW) }
 
     val navController = LocalNavController.current
@@ -122,6 +126,15 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
 
     LaunchedEffect(true) {
         isEntering.value = true
+    }
+
+    LaunchedEffect(isPhaseOne.value) {
+        if (isPhaseOne.value.not()) {
+            delay((loadingAnimationDuration * 1.5).toLong())
+            withContext(Dispatchers.Main){
+                navController.navigate(Screens.CoffeeReadyScreen)
+            }
+        }
     }
 
     LaunchedEffect(selectedCoffeeSpecs.value.coffeeConcentration) {
@@ -304,8 +317,8 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
                         .fillMaxWidth()
                         .height(60.dp)
                         .padding(bottom = 24.dp),
-
-                    )
+                    durationMillis = loadingAnimationDuration
+                )
                 Text(
                     text = "Almost Done",
                     style = MainTextStyle,

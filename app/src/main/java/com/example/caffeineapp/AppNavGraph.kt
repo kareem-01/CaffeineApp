@@ -3,6 +3,7 @@ package com.example.caffeineapp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
+import com.example.caffeineapp.features.coffeReadyScreen.coffeeReadyScreen
 import com.example.caffeineapp.features.home.homeGraph
 import com.example.caffeineapp.features.order.orderGraph
 import com.example.caffeineapp.features.splash.splashGraph
@@ -17,5 +18,6 @@ fun AppNavGraph(modifier: Modifier = Modifier) {
         splashGraph()
         homeGraph()
         orderGraph()
+        coffeeReadyScreen()
     }
 }
