@@ -173,7 +173,7 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
     ) {
         if (previousCupSize.value.ordinal > selectedCoffeeSpecs.value.coffeeCupSize.ordinal) {
             removeCoffeeBeansFromCub()
-        }else{
+        } else {
             beansAlpha.snapTo(0f)
         }
         previousCupSize.value = selectedCoffeeSpecs.value.coffeeCupSize
@@ -321,6 +321,7 @@ fun OrderCoffeeScreen(coffeeCub: CoffeeCub?, modifier: Modifier = Modifier) {
                                 )
                             )
                         }
+
                     }
                 }
             }

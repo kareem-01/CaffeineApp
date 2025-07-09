@@ -1,5 +1,9 @@
 package com.example.caffeineapp.features.sweetDetailsScreen
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,8 +32,13 @@ import com.example.caffeineapp.theme.MainTextStyle
 import com.example.caffeineapp.theme.singletFontFamily
 import com.example.caffeineapp.theme.textColor87
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SnackDetailsScreen(imageResource: Int, modifier: Modifier = Modifier) {
+fun SharedTransitionScope.SnackDetailsScreen(
+    contentVisibilityScope: AnimatedContentScope,
+    imageResource: Int,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -77,6 +86,13 @@ fun SnackDetailsScreen(imageResource: Int, modifier: Modifier = Modifier) {
             painter = painterResource(id = imageResource),
             contentDescription = "Snack Image",
             modifier = Modifier
+                .sharedElement(
+                    sharedContentState = rememberSharedContentState("snack/${imageResource}"),
+                    animatedVisibilityScope = contentVisibilityScope,
+                    boundsTransform = { _, _ ->
+                        tween(1000)
+                    }
+                )
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .align(Alignment.CenterHorizontally)

@@ -1,6 +1,10 @@
 package com.example.caffeineapp.features.snacksScreen
 
 import android.util.Log
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.SnapPosition
@@ -37,8 +41,12 @@ import com.example.caffeineapp.theme.textColor87
 import com.example.caffeineapp.utils.noRippleClick
 import kotlin.math.absoluteValue
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SnacksScreen(modifier: Modifier = Modifier) {
+fun SharedTransitionScope.SnacksScreen(
+    animatedContentScope: AnimatedContentScope,
+    modifier: Modifier = Modifier
+) {
     val navController = LocalNavController.current
     val imageList = listOf(
         R.drawable.oreo_image,
@@ -134,6 +142,13 @@ fun SnacksScreen(modifier: Modifier = Modifier) {
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
+                        .sharedElement(
+                            sharedContentState = rememberSharedContentState("snack/${imageList[page]}"),
+                            animatedVisibilityScope = animatedContentScope,
+                            boundsTransform = { _, _ ->
+                                tween(1000)
+                            }
+                        )
                         .fillMaxSize()
                         .padding(56.dp)
                 )
